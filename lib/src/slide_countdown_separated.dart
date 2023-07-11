@@ -25,43 +25,44 @@ import 'utils/text_animation.dart';
 /// {@endtemplate}
 class SlideCountdownSeparated extends StatefulWidget {
   /// {@macro slide_countdown_separated}
-  const SlideCountdownSeparated({
-    super.key,
-    this.duration,
-    this.height = 30,
-    this.width = 30,
-    this.textStyle =
-        const TextStyle(color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold),
-    this.separatorStyle =
-        const TextStyle(color: Color(0xFF000000), fontWeight: FontWeight.bold),
-    this.icon,
-    this.suffixIcon,
-    this.separator,
-    this.replacement,
-    this.onDone,
-    this.durationTitle,
-    this.separatorType = SeparatorType.symbol,
-    this.slideDirection = SlideDirection.down,
-    this.padding = const EdgeInsets.all(5),
-    this.separatorPadding = const EdgeInsets.symmetric(horizontal: 3),
-    this.showZeroValue = false,
-    this.decoration = const BoxDecoration(
-      borderRadius: BorderRadius.all(Radius.circular(4)),
-      color: Color(0xFFF23333),
-    ),
-    this.curve = Curves.easeOut,
-    this.countUp = false,
-    this.infinityCountUp = false,
-    this.slideAnimationDuration = const Duration(milliseconds: 300),
-    this.textDirection = TextDirection.rtl,
-    this.digitsNumber,
-    this.streamDuration,
-    this.onChanged,
-    this.shouldShowDays,
-    this.shouldShowHours,
-    this.shouldShowMinutes,
-    this.shouldShowSeconds,
-  }) : assert(
+  const SlideCountdownSeparated(
+      {super.key,
+      this.duration,
+      this.height = 30,
+      this.width = 30,
+      this.textStyle = const TextStyle(
+          color: Color(0xFFFFFFFF), fontWeight: FontWeight.bold),
+      this.separatorStyle = const TextStyle(
+          color: Color(0xFF000000), fontWeight: FontWeight.bold),
+      this.icon,
+      this.suffixIcon,
+      this.separator,
+      this.replacement,
+      this.onDone,
+      this.durationTitle,
+      this.separatorType = SeparatorType.symbol,
+      this.slideDirection = SlideDirection.down,
+      this.padding = const EdgeInsets.all(5),
+      this.separatorPadding = const EdgeInsets.symmetric(horizontal: 3),
+      this.showZeroValue = false,
+      this.decoration = const BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(4)),
+        color: Color(0xFFF23333),
+      ),
+      this.curve = Curves.easeOut,
+      this.countUp = false,
+      this.infinityCountUp = false,
+      this.slideAnimationDuration = const Duration(milliseconds: 300),
+      this.textDirection = TextDirection.rtl,
+      this.digitsNumber,
+      this.streamDuration,
+      this.onChanged,
+      this.shouldShowDays,
+      this.shouldShowHours,
+      this.shouldShowMinutes,
+      this.shouldShowSeconds,
+      this.showTotal = ShowTotalDurationUnit.none})
+      : assert(
           duration != null || streamDuration != null,
           'Either duration or streamDuration has to be provided',
         );
@@ -194,6 +195,11 @@ class SlideCountdownSeparated extends StatefulWidget {
   /// when duration in seconds is zero it will return false
   final ShouldShowItems? shouldShowSeconds;
 
+  /// Determines where the countdown stops showing larger time units and
+  /// aggregates the lower time units. Eg, if showTotal is set to "hours",
+  /// a duration of 2 days will display as 48 hours
+  final ShowTotalDurationUnit showTotal;
+
   @override
   _SlideCountdownSeparatedState createState() =>
       _SlideCountdownSeparatedState();
@@ -266,27 +272,42 @@ class _SlideCountdownSeparatedState extends State<SlideCountdownSeparated>
     final defaultShowDays =
         remainingDuration.inDays < 1 && !widget.showZeroValue ? false : true;
     final defaultShowHours =
-        remainingDuration.inHours < 1 && !widget.showZeroValue ? false : true;
+        remainingDuration.inHours < 1 && !widget.showZeroValue
+            ? false
+            : true &&
+                ((widget.showTotal != ShowTotalDurationUnit.minutes) &&
+                    (widget.showTotal != ShowTotalDurationUnit.seconds));
     final defaultShowMinutes =
-        remainingDuration.inMinutes < 1 && !widget.showZeroValue ? false : true;
+        remainingDuration.inMinutes < 1 && !widget.showZeroValue
+            ? false
+            : true && (widget.showTotal != ShowTotalDurationUnit.seconds);
     final defaultShowSeconds =
         remainingDuration.inSeconds < 1 && !widget.showZeroValue ? false : true;
 
     /// cal func from CountdownMixin
     updateConfigurationNotifier(
-      updateDaysNotifier: widget.shouldShowDays != null
-          ? widget.shouldShowDays!(remainingDuration)
-          : defaultShowDays,
-      updateHoursNotifier: widget.shouldShowHours != null
-          ? widget.shouldShowHours!(remainingDuration)
-          : defaultShowHours,
-      updateMinutesNotifier: widget.shouldShowMinutes != null
-          ? widget.shouldShowMinutes!(remainingDuration)
-          : defaultShowMinutes,
-      updateSecondsNotifier: widget.shouldShowSeconds != null
-          ? widget.shouldShowSeconds!(remainingDuration)
-          : defaultShowSeconds,
-    );
+        updateDaysNotifier: (widget.showTotal == ShowTotalDurationUnit.none)
+            ? (widget.shouldShowDays != null
+                ? widget.shouldShowDays!(remainingDuration)
+                : defaultShowDays)
+            : false,
+        updateHoursNotifier:
+            ((widget.showTotal != ShowTotalDurationUnit.minutes) &&
+                    (widget.showTotal != ShowTotalDurationUnit.seconds))
+                ? (widget.shouldShowHours != null
+                    ? widget.shouldShowHours!(remainingDuration)
+                    : defaultShowHours)
+                : false,
+        updateMinutesNotifier:
+            (widget.showTotal != ShowTotalDurationUnit.seconds)
+                ? (widget.shouldShowMinutes != null
+                    ? widget.shouldShowMinutes!(remainingDuration)
+                    : defaultShowMinutes)
+                : false,
+        updateSecondsNotifier: widget.shouldShowSeconds != null
+            ? widget.shouldShowSeconds!(remainingDuration)
+            : defaultShowSeconds,
+        updateShowTotal: widget.showTotal);
   }
 
   Duration get duration => widget.duration ?? widget.streamDuration!.duration;
@@ -327,15 +348,22 @@ class _SlideCountdownSeparatedState extends State<SlideCountdownSeparated>
         final defaultShowSeconds =
             duration.inSeconds < 1 && !widget.showZeroValue ? false : true;
 
-        final showDays = widget.shouldShowDays != null
-            ? widget.shouldShowDays!(duration)
-            : defaultShowDays;
-        final showHours = widget.shouldShowHours != null
-            ? widget.shouldShowHours!(duration)
-            : defaultShowHours;
-        final showMinutes = widget.shouldShowMinutes != null
-            ? widget.shouldShowMinutes!(duration)
-            : defaultShowMinutes;
+        final showDays = widget.showTotal == ShowTotalDurationUnit.none
+            ? (widget.shouldShowDays != null
+                ? widget.shouldShowDays!(duration)
+                : defaultShowDays)
+            : false;
+        final showHours = (widget.showTotal != ShowTotalDurationUnit.minutes &&
+                widget.showTotal != ShowTotalDurationUnit.seconds)
+            ? (widget.shouldShowHours != null
+                ? widget.shouldShowHours!(duration)
+                : defaultShowHours)
+            : false;
+        final showMinutes = (widget.showTotal != ShowTotalDurationUnit.seconds)
+            ? (widget.shouldShowMinutes != null
+                ? widget.shouldShowMinutes!(duration)
+                : defaultShowMinutes)
+            : false;
         final showSeconds = widget.shouldShowSeconds != null
             ? widget.shouldShowSeconds!(duration)
             : defaultShowSeconds;

@@ -20,3 +20,17 @@ enum SeparatorType {
   /// Represents a separator with a title.
   title,
 }
+
+enum ShowTotalDurationUnit {
+  /// Shows the total number of hours, without showing days
+  hours,
+
+  /// Shows the total number of minutes, without showing days or hours
+  minutes,
+
+  /// Shows the total number of seconds, without showing days, hours, or minutes
+  seconds,
+
+  /// Default, shows days, hours, minutes, and seconds
+  none
+}

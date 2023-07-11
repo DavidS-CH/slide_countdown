@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:slide_countdown/slide_countdown.dart';
 
 /// {@template countdown_mixin}
 /// This is a Flutter Mixin that provides a countdown functionality for a StatefulWidget.
@@ -36,6 +37,7 @@ mixin CountdownMixin<T extends StatefulWidget> on State<T> {
   bool _updateHoursNotifier = true;
   bool _updateMinutesNotifier = true;
   bool _updateSecondsNotifier = true;
+  ShowTotalDurationUnit showTotal = ShowTotalDurationUnit.none;
 
   /// Update the flags that control the updates of each notifier.
   void updateConfigurationNotifier({
@@ -43,6 +45,7 @@ mixin CountdownMixin<T extends StatefulWidget> on State<T> {
     bool? updateHoursNotifier,
     bool? updateMinutesNotifier,
     bool? updateSecondsNotifier,
+    ShowTotalDurationUnit updateShowTotal = ShowTotalDurationUnit.none
   }) {
     if (updateDaysNotifier != null &&
         updateDaysNotifier != _updateDaysNotifier) {
@@ -60,6 +63,8 @@ mixin CountdownMixin<T extends StatefulWidget> on State<T> {
         updateSecondsNotifier != _updateSecondsNotifier) {
       _updateSecondsNotifier = updateSecondsNotifier;
     }
+
+    showTotal = updateShowTotal;
   }
 
   void _daysFirstDigitNotifier(Duration duration) {
@@ -216,12 +221,22 @@ mixin CountdownMixin<T extends StatefulWidget> on State<T> {
 
   int hoursFirstDigit(Duration duration) {
     if (duration.inHours <= 0) return 0;
-    return (duration.inHours % 24) ~/ 10;
+
+    if( showTotal == ShowTotalDurationUnit.hours ) {
+      return (duration.inHours) ~/ 10;
+    } else {
+      return (duration.inHours % 24) ~/ 10;
+    }
   }
 
   int hoursSecondDigit(Duration duration) {
     if (duration.inHours <= 0) return 0;
-    return (duration.inHours % 24) % 10;
+
+    if( showTotal == ShowTotalDurationUnit.hours ) {
+      return (duration.inHours) % 10;
+    } else {
+      return (duration.inHours % 24) % 10;
+    }
   }
 
   int minutesFirstDigit(Duration duration) {
