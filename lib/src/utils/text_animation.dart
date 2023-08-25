@@ -148,6 +148,7 @@ class _TextAnimationState extends State<TextAnimation>
                 child: Text(
                   digit(nextValue),
                   style: widget.textStyle,
+                  textScaleFactor: 1.0,
                 ),
               ),
             ),
@@ -161,6 +162,7 @@ class _TextAnimationState extends State<TextAnimation>
                 ),
                 child: Text(
                   digit(currentValue),
+                  textScaleFactor: 1.0,
                   style: widget.textStyle,
                 ),
               ),

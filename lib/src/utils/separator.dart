@@ -36,6 +36,7 @@ class Separator extends StatelessWidget {
       child: Text(
         separator,
         style: style,
+        textScaleFactor: 1.0,
       ),
     );
   }

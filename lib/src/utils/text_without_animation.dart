@@ -29,6 +29,7 @@ class _TextWithoutAnimationState extends State<TextWithoutAnimation> {
       builder: (BuildContext context, int value, Widget? child) {
         return Text(
           digit(value),
+          textScaleFactor: 1.0,
           style: widget.textStyle,
         );
       },

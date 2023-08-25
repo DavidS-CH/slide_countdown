@@ -61,6 +61,7 @@ class SlideCountdownSeparated extends StatefulWidget {
       this.shouldShowHours,
       this.shouldShowMinutes,
       this.shouldShowSeconds,
+      this.textScaleFactor,
       this.showTotal = ShowTotalDurationUnit.none})
       : assert(
           duration != null || streamDuration != null,
@@ -199,6 +200,8 @@ class SlideCountdownSeparated extends StatefulWidget {
   /// aggregates the lower time units. Eg, if showTotal is set to "hours",
   /// a duration of 2 days will display as 48 hours
   final ShowTotalDurationUnit showTotal;
+
+  final double? textScaleFactor;
 
   @override
   _SlideCountdownSeparatedState createState() =>
